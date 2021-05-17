@@ -3,12 +3,13 @@ const bodyParser = require('body-parser');
 const app = express();
 app.use(bodyParser.json());
 
-const mockUserData = [ {name: 'Mark'}, {name: 'Jill'} ];
+let users = [];
+
 app.get('/users', function(req, res){
 	res.json({
 		success: true,
-		message: 'successfully Sgot user. Nice!',
-		users: mockUserData
+		message: 'successfully got user. Nice!',
+		users: users.map(user => user.username)
 	});
 });
 
@@ -22,14 +23,12 @@ app.get("/users/:id", function(req, res) {
 });
 
 app.post('/login', function(req, res){
-	const username = req.body.username;
-	const password = req.body.password;
-	console.log(username, password);
+	let username = req.body.username;
+	let password = req.body.password;
 
-	const mockUsername = "billyTheKid";
-	const mockPassword = "supersecret";
+	var result = users.filter(user => user.username===username && user.password===password);
 
-	if (username===mockUsername && password===mockPassword){
+	if (result.length > 0){
 		res.json({
 			success: true,
 			message: 'password and username match',
@@ -39,6 +38,24 @@ app.post('/login', function(req, res){
 		res.json({
 			success: false,
 			message: 'password and username do not match'
+		});
+	}
+});
+
+app.post("/add", function(req, res){
+	let username = req.body.username;
+	let password = req.body.password;
+	var result = users.filter(user => user.username===username && user.password===password)
+	if(result.length > 0)
+		res.json({
+			success: false,
+			message: 'user already taked'
+		});
+	else {
+		users.push({ username: req.body.username, password: req.body.password });
+		res.json({
+			success: true,
+			message: 'user added succesfully!'
 		});
 	}
 });
